@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-
+import { useProgram, useClaimNFT, useClaimConditions, useProgramMetadata } from "@thirdweb-dev/react/solana"
 // Default styles that can be overridden by your app
 require("@solana/wallet-adapter-react-ui/styles.css");
 
@@ -13,17 +13,20 @@ const WalletMultiButtonDynamic = dynamic(
 );
 
 const Home: NextPage = () => {
-  // Here's how to get the thirdweb SDK instance
-  // const sdk = useSDK();
-  // Here's how to get a nft collection
-  // const { program } = useProgram(
-  //   your_nft_collection_address,
-  //   "nft-collection"
-  // );
-
+  const { program } = useProgram("3jEe21Jux9ULqCAK7o8VPkFEA3wiyMu3uJvyX3ur5oTs", "nft-drop")
+  const { mutateAsync: claim, isLoading, error } = useClaimNFT(program);
+  const {data: conditions, isLoading: conditionsIsLoading} = useClaimConditions(program);
+  const {data: metadata, isLoading: metadataIsLoading} = useProgramMetadata(program);
+  
+  console.log(metadata);
+  console.log(conditions);
+  
+  
   return (
+    
     <>
       <div className={styles.container}>
+      <WalletMultiButtonDynamic />
         <div className={styles.iconContainer}>
           <Image
             src="/thirdweb.svg"
@@ -42,26 +45,23 @@ const Home: NextPage = () => {
             alt="sol"
           />
         </div>
-        <h1 className={styles.h1}>Solana, meet thirdweb 👋</h1>
-        <p className={styles.explain}>
-          Explore what you can do with thirdweb&rsquo;s brand new{" "}
-          <b>
-            <a
-              href="https://portal.thirdweb.com/solana"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.lightPurple}
-            >
-              Solana SDK
-            </a>
-          </b>
-          .
-        </p>
-
-        <WalletMultiButtonDynamic />
+        <h1 className={styles.h1}>ALALA 👋</h1>
+         {metadataIsLoading ? <p>Loading...</p> : <p>{metadata?.description}</p>}
+        <button disabled={isLoading} onClick={() => claim({amount: 1})}>Claim 1 Alala NFT</button>
+          {conditionsIsLoading ? (
+            <p>?/?</p>
+          ) : (
+            <p>
+              {conditions?.totalAvailableSupply}/{conditions?.claimedSupply}
+            </p>
+          ) }
+         
       </div>
     </>
+    
   );
+  
 };
+
 
 export default Home;
